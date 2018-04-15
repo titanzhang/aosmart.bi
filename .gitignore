@@ -1,0 +1,8 @@
+/env/esdata
+/client/build
+/data
+node_modules
+.DS_Store
+npm-debug.log
+entrypoint
+package-lock.json
