@@ -58,9 +58,9 @@ function createController(request) {
         for (const account of [].concat(JSON.parse(req.query.acc))) {
           const sepIndex = account.indexOf('_');
           if (sepIndex < 0) continue;
-          req.accounts.push({
-            site: account.subString(0, sepIndex),
-            account: account.subString(sepIndex + 1)
+          reqParam.accounts.push({
+            site: account.substring(0, sepIndex),
+            account: account.substring(sepIndex + 1)
           });
         }
       }
