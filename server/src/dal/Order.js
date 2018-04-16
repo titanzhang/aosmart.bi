@@ -62,10 +62,14 @@ const OrderDAO = {
           }
         },
         aggs: {
-          group_by_site: {
-            terms: { field: 'site' },
+          sale_amount: {
+            sum: {field: 'amount_paid'}
+          },
+          product_info: {
+            nested: {path: 'products'},
             aggs: {
-              group_by_store: { terms: { field: 'store' } }
+              sale_count: {sum: {field: 'products.quantity'}},
+              sale_amount: {sum: {script: 'doc["products.quantity"].value * doc["products.price"].value'}}
             }
           }
         }
@@ -73,6 +77,14 @@ const OrderDAO = {
       if (accounts && accounts.length > 0) {
         body.query.bool.must.push({ term: { store_full: accounts.map( ({site, account}) => `${site}_${account}`)} });
       }
+      // if (groupData) {
+      //   body.aggs. group_by_site = {
+      //     terms: { field: 'site' },
+      //     aggs: {
+      //       group_by_store: { terms: { field: 'store' } }
+      //     }
+      //   }
+      // }
 
       const response = await client.search({
         index: config.index,
@@ -82,14 +94,20 @@ const OrderDAO = {
       if (response.errors) {
         return false;
       } else {
-        const data = { totalCount: response.hits.total, sites: [] };
-        for (const site of response.aggregations.group_by_site.buckets) {
-          const siteInfo = { name: site.key, count: site.doc_count, stores: [] };
-          for (const store of site.group_by_store.buckets) {
-            const storeInfo = { name: store.key, count: store.doc_count };
-            siteInfo.stores.push(storeInfo);
-          }
-          data.sites.push(siteInfo);
+        // const data = { totalCount: response.hits.total, sites: [] };
+        // for (const site of response.aggregations.group_by_site.buckets) {
+        //   const siteInfo = { name: site.key, count: site.doc_count, stores: [] };
+        //   for (const store of site.group_by_store.buckets) {
+        //     const storeInfo = { name: store.key, count: store.doc_count };
+        //     siteInfo.stores.push(storeInfo);
+        //   }
+        //   data.sites.push(siteInfo);
+        // }
+        const data = {
+          orderCount: response.hits.total,
+          saleCount: response.aggregations.product_info.sale_count.value,
+          saleAmount: response.aggregations.sale_amount.value,
+          saleAmount2: response.aggregations.product_info.sale_amount.value
         }
         return data;
       }

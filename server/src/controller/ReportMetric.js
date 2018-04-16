@@ -76,22 +76,20 @@ function createController(request) {
   }
 
   async function getOrderCount({dateStart, dateEnd, accounts}) {
-    const result = await OrderDAO.countByDateAccount({
+    const data = await OrderDAO.countByDateAccount({
       dateStart: dateStart,
       dateEnd: dateEnd,
       accounts: accounts
     });
-    if (result) {
-      return {
-        totalCount: result.totalCount,
-        sites: result.sites
-      };
-    } else {
-      return {
-        totalCount: 0,
-        sites: []
-      };
+
+    const result = { orderCount: 0, saleCount: 0, saleAmount: 0, saleAmount2: 0 };
+    if (data) {
+      result.orderCount = data.orderCount;
+      result.saleCount = data.saleCount;
+      result.saleAmount = data.saleAmount;
+      result.saleAmount2 = data.saleAmount2;
     }
+    return result;
   }
 
   return {
