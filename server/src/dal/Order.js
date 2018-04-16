@@ -43,6 +43,60 @@ const OrderDAO = {
       }
     }
     return { status: !response.errors, fail: failIDs, success: successIDs };
+  },
+
+  // account: { site: ..., account: ... }
+  countByDateAccount: async function({docType, dateStart, dateEnd, accounts}) {
+    try {
+
+      if (!docType) docType = 'aos';
+      const client = getClient();
+      const body = {
+        size: 0,
+        query: {
+          bool: {
+            must: [
+              { term: { type: docType } },
+              { range: { date: { gte: dateStart.getTime(), lt: dateEnd.getTime() }} }
+            ]
+          }
+        },
+        aggs: {
+          group_by_site: {
+            terms: { field: 'site' },
+            aggs: {
+              group_by_store: { terms: { field: 'store' } }
+            }
+          }
+        }
+      };
+      if (accounts && accounts.length > 0) {
+        body.query.bool.must.push({ term: { store_full: accounts.map( ({site, account}) => `${site}_${account}`)} });
+      }
+
+      const response = await client.search({
+        index: config.index,
+        body: body
+      });
+
+      if (response.errors) {
+        return false;
+      } else {
+        const data = { totalCount: response.hits.total, sites: [] };
+        for (const site of response.aggregations.group_by_site.buckets) {
+          const siteInfo = { name: site.key, count: site.doc_count, stores: [] };
+          for (const store of site.group_by_store.buckets) {
+            const storeInfo = { name: store.key, count: store.doc_count };
+            siteInfo.stores.push(storeInfo);
+          }
+          data.sites.push(siteInfo);
+        }
+        return data;
+      }
+
+    } catch(e) {
+      throw { message: `Order.countByDateAccount: ${e.message||e}` };
+    }
   }
 };
 
@@ -75,13 +129,14 @@ const OrderDO = {
     };
   },
 
-  order: function({type='aos', order_no, buyer, amount_paid, cost_of_trans, site, store, products, date}) {
+  order: function({type='aos', order_no, buyer, amount_paid, cost_of_trans, site, store, store_full, products, date}) {
     const dataObj = {};
     dataObj.type = type;
     dataObj.order_no = order_no;
     dataObj.amount_paid = amount_paid;
     dataObj.site = site;
     dataObj.store = store;
+    dataObj.store_full = store_full || `${site}_${store}`;
     dataObj.date = date;
     if (buyer) dataObj.buyer = buyer;
     if (cost_of_trans) dataObj.cost_of_trans = cost_of_trans;

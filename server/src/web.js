@@ -14,7 +14,8 @@ app.use( (request, response, next) => {
 
 // Routing rules
 app.post('/etl/file/ebay', upload.single('file'), require('./entry/controller.EtlFileEbay'));
-// app.get('/search', require('./controller/SearchPageController'));
+// /report/metric?d=[start,end]&acc=site_account&fl=[sa,sq,oc,co,pf,mg]
+app.get('/report/metric', require('./entry/controller.ReportMetric'));
 // app.get('/product/extract/:url', require('./controller/ProductExtractApiController'));
 // app.get('/product/info/:url', require('./controller/ProductInfoApiController'));
 
