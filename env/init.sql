@@ -59,6 +59,7 @@ PUT order
         },
         "site": { "type": "keyword" },
         "store": { "type": "keyword" },
+        "store_full": { "type": "keyword" },
         "products": {
           "type": "nested",
           "properties": {
