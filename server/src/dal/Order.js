@@ -75,7 +75,7 @@ const OrderDAO = {
         }
       };
       if (accounts && accounts.length > 0) {
-        body.query.bool.must.push({ term: { store_full: accounts.map( ({site, account}) => `${site}_${account}`)} });
+        body.query.bool.must.push({ terms: { store_full: accounts.map( ({site, account}) => `${site}_${account}`)} });
       }
       // if (groupData) {
       //   body.aggs. group_by_site = {
