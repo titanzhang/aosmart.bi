@@ -1,6 +1,6 @@
 import React from 'react';
 import NavSidebar from '../component/NavSidebar';
-const Dashboard = require('../component/Dashboard');
+import Dashboard from '../container/DashboardContainer';
 
 const Texts = {
   nav_dashboard: 'Dashboard',

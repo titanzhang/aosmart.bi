@@ -1,28 +1,42 @@
-const React = require('react');
+import React from 'react';
 
 const MetricGrid = require('./MetricGrid');
+import DataFilter from './DataFilter';
 require('./Dashboard.less');
+require('./button.less');
 
 const Texts = {
   sale_amount: 'Sale Amount',
-  sale_quantity: 'Sale Quantity',
+  sale_count: 'Sale Quantity',
   order_count: 'Order Count',
   cost: 'Cost',
   profit: 'Profit',
   margin: 'Margin'
 };
 
-const Dashboard = () => (
-  <div className='dashboard'>
-    <div className='dashboard__row'>
-      <div className='col col-2'><MetricGrid title={Texts.sale_amount} sum='10000' /></div>
-      <div className='col col-2'><MetricGrid title={Texts.sale_quantity} sum='100' /></div>
-      <div className='col col-2'><MetricGrid title={Texts.order_count} sum='20' /></div>
-      <div className='col col-2'><MetricGrid title={Texts.cost} sum='910' /></div>
-      <div className='col col-2'><MetricGrid title={Texts.profit} sum='8501' /></div>
-      <div className='col col-2'><MetricGrid title={Texts.margin} sum='0.25' /></div>
-    </div>
-  </div>
-);
+const buildMetric = (model, name) => {
+  if (!model) return null;
+  return (
+    <div className='col col-2'><MetricGrid title={Texts[name]} sum={model.sum} /></div>
+  )
+};
 
-module.exports = Dashboard;
+const Dashboard = (props) => {
+  const metrics = props.metrics || {};
+
+  return (
+    <div className='dashboard'>
+      <DataFilter {...props.filter} />
+      <div className='dashboard__row'>
+        {buildMetric(metrics.sale_amount, 'sale_amount')}
+        {buildMetric(metrics.sale_count, 'sale_count')}
+        {buildMetric(metrics.order_count, 'order_count')}
+        {buildMetric(metrics.cost, 'cost')}
+        {buildMetric(metrics.profit, 'profit')}
+        {buildMetric(metrics.margin, 'margin')}
+      </div>
+    </div>
+  );
+}
+
+export default Dashboard;
