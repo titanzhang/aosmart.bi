@@ -11,18 +11,21 @@ const date2str = function(date) {
   return `${month}${day}${year}`;
 };
 
+const defaultMetrics = {
+  sale_amount: {sum:0},
+  sale_count: {sum:0},
+  order_count: {sum:0},
+  cost: {sum:0},
+  profit: {sum:0},
+  margin: {sum:0}
+};
+
 class DashboardContainer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      metrics: {
-        sale_amount: {sum:0},
-        sale_count: {sum:0},
-        order_count: {sum:0},
-        cost: {sum:0},
-        profit: {sum:0},
-        margin: {sum:0}
-      }
+      metrics: defaultMetrics,
+      isFilterEnabled: false
     };
 
     this.filter = {
@@ -98,6 +101,7 @@ class DashboardContainer extends React.Component {
         newList.push(store);
       }
       this.filter.accounts = newList;
+      this.setState({isFilterEnabled: (newList.length > 0)})
     };
   }
 
@@ -135,7 +139,8 @@ class DashboardContainer extends React.Component {
       storeChangeHandler: this.filterStoreChange.bind(this),
       startDateChangeHandler: this.filterDateChange('dateStart'),
       endDateChangeHandler: this.filterDateChange('dateEnd'),
-      applyHandler: this.filterApply()
+      applyHandler: this.filterApply(),
+      isEnabled: this.state.isFilterEnabled
     };
     return <Dashboard metrics={metrics} filter={filter}/>;
   }

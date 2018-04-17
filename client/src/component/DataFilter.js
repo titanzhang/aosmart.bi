@@ -21,7 +21,12 @@ const Sites = function({list, storeChangeHandler}) {
   );
 };
 
-const DataFilter = ({dateStart, dateEnd, sites, storeChangeHandler, startDateChangeHandler, endDateChangeHandler, applyHandler}) => {
+const buildApplyButton = function({isEnabled, applyHandler}) {
+  if (!isEnabled) return null;
+  return <div className='col col2'><span className='btn' onClick={applyHandler}>Apply</span></div>
+};
+
+const DataFilter = ({dateStart, dateEnd, sites, storeChangeHandler, startDateChangeHandler, endDateChangeHandler, applyHandler, isEnabled}) => {
   return (
     <div>
       <div className='datafilter__row'>
@@ -32,7 +37,7 @@ const DataFilter = ({dateStart, dateEnd, sites, storeChangeHandler, startDateCha
         <Sites list={sites} storeChangeHandler={storeChangeHandler}/>
       </div>
       <div className='datafilter__row'>
-        <div className='col col2'><span className='btn' onClick={applyHandler}>Apply</span></div>
+        {buildApplyButton({isEnabled:isEnabled, applyHandler: applyHandler})}
       </div>
     </div>
   );
