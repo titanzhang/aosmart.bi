@@ -7,7 +7,9 @@ const Texts = {
   nav_ebay: 'eBay',
   nav_amazon: 'Amazon',
   upload_ebay: 'Import eBay data',
-  upload_amazon: 'Import Amazon data'
+  upload_amazon: 'Import Amazon data',
+  msg_upload_fail: 'Data processing failed',
+  msg_upload_success: 'Data processing done'
 };
 
 const defaultNavList = [
@@ -18,20 +20,6 @@ const defaultNavList = [
 const uploadTitles = {};
 uploadTitles[providers.ebay] = Texts.upload_ebay;
 uploadTitles[providers.amazon] = Texts.upload_amazon;
-
-// const orderFields = {
-//   orderNo: 'orderNo',
-//   sku: 'sku',
-//   price: 'price',
-//   quantity: 'quantity'
-// };
-//
-// const headerOrderEbay = [
-//   { name: orderFields.orderNo, index: 0 },
-//   { name: orderFields.sku, index: 31},
-//   { name: orderFields.price, index: 16},
-//   { name: orderFields.quantity, index: 15}
-// ];
 
 class PageData extends React.Component {
   constructor(props) {
@@ -61,12 +49,29 @@ class PageData extends React.Component {
     }
   }
 
+  uploadCallback() {
+    return ({response, error}) => {
+      if (error) {
+        alert(error.message || error);
+      }
+      if (response) {
+        alert(`${Texts.msg_upload_success}(success:${response.data.success}, fail:${response.data.fail})`)
+      }
+    }
+  }
+
   render() {
     return (
       <div>
         <NavSidebar linkList={this.state.navList} />
         <div className='main'>
-          <DataUpload key={this.state.providerID} title={uploadTitles[this.state.providerID]} api={providerApi[this.state.providerID]} provider={this.state.providerID}/>
+          <DataUpload
+            key={this.state.providerID}
+            title={uploadTitles[this.state.providerID]}
+            api={providerApi[this.state.providerID]}
+            provider={this.state.providerID}
+            callback={this.uploadCallback()}
+          />
         </div>
       </div>
     );

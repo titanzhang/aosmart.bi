@@ -8,6 +8,7 @@ const Texts = {
   label_noheader: 'No header line',
   label_account: 'Account',
   button_import: 'Import',
+  button_uploading: 'Processing ...',
   msg_no_file: 'No file selected',
   msg_no_account: 'No account specified',
   msg_upload_fail: 'Data processing failed'
@@ -16,41 +17,20 @@ const Texts = {
 class DataUpload extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      isUploading: false
+    };
     this.api = props.api;
     this.provider = props.provider;
     this.file = null;
     this.noHeader = false;
     this.account = '';
+    this.callback = props.callback;
   }
 
   selectFileHandler(event) {
     this.file = event.target.files[0];
-
-    // const reader = new FileReader();
-    // reader.onload = (e) => this.setFileContent(e.target.result);
-    // reader.readAsText(file);
   }
-
-  // setFileContent(content) {
-  //   const result = [];
-  //   const csv = CSV({noheader: false});
-  //   csv.fromString(content.split('\n').slice(0, 10).join('\n'))
-  //   .on('header', (header) => {
-  //     // console.log(header);
-  //   })
-  //   .on('csv', (csvrow) => {
-  //     const row = [];
-  //     for (const field of this.headerDef) {
-  //       row.push(csvrow[field.index]);
-  //     }
-  //     result.push(row);
-  //   })
-  //   .on('done', (error) => {
-  //     if (error) console.log(error);
-  //     console.log(result);
-  //     this.setState({ previewList: result });
-  //   });
-  // }
 
   noHeaderHandler(event) {
     this.noHeader = event.target.checked;
@@ -65,6 +45,7 @@ class DataUpload extends React.Component {
       if (!this.file) throw Texts.msg_no_file;
       if (!this.account || this.account.trim().length === 0) throw Texts.msg_no_account;
 
+      this.setState({isUploading: true});
       const data = new FormData();
       data.append('file', this.file);
       data.append('no_header', this.noHeader);
@@ -74,17 +55,27 @@ class DataUpload extends React.Component {
         method: 'POST',
         body: data
       })
+      .then( (response) => response.json() )
       .then( (response) => {
-        console.log(response);
+        this.setState({isUploading: false});
+        setTimeout(()=>this.callback({response: response}),0);
       })
       .catch( (error) => {
-        console.log(error);
-        alert(Texts.msg_upload_fail);
+        this.setState({isUploading: false});
+        setTimeout(()=>this.callback({error: Texts.msg_upload_fail}),0);
       });
     } catch(e) {
-      alert(e);
+      this.setState({isUploading: false});
+      setTimeout(()=>this.callback({error: e}),0);
     }
-    // console.log(this.api, this.file, this.noHeader, this.account);
+  }
+
+  buildUploadButton() {
+    if (this.state.isUploading) {
+      return <span className='btn btn--large'>{Texts.button_uploading}</span>
+    } else {
+      return <span className='btn btn--large' onClick={ () => this.upload() } >{Texts.button_import}</span>
+    }
   }
 
   render() {
@@ -107,7 +98,7 @@ class DataUpload extends React.Component {
           </label>
         </div>
         <div className='dataupload__row'>
-          <span className='btn btn--large' onClick={ () => this.upload() } >{Texts.button_import}</span>
+          {this.buildUploadButton()}
         </div>
       </div>
     );
