@@ -6,26 +6,32 @@ node('NodeRaw') {
     }
 
     stage('Production Config') {
-      configFileProvider([configFile(fileId: 'aos_client_config_backend', variable: 'CONFIG_BACKEND')]) {
-        sh "cp \"${CONFIG_BACKEND}\" src/config/backend.js"
-      }
-      configFileProvider([configFile(fileId: 'aos_client_config_provider', variable: 'CONFIG_PROVIDER')]) {
-        sh "cp \"${CONFIG_SERVER}\" src/config/provider.js"
+      dir('client') {
+        configFileProvider([configFile(fileId: 'aos_client_config_backend', variable: 'CONFIG_BACKEND')]) {
+          sh "cp \"${CONFIG_BACKEND}\" src/config/backend.js"
+        }
+        configFileProvider([configFile(fileId: 'aos_client_config_provider', variable: 'CONFIG_PROVIDER')]) {
+          sh "cp \"${CONFIG_PROVIDER}\" src/config/provider.js"
+        }
       }
     }
 
     stage('Compile') {
-      def NODE_VERSION = '7.8'
-      docker.image("node:${NODE_VERSION}").inside {
-        sh 'npm install && npm run production:build'
+      dir('client') {
+        def NODE_VERSION = '7.8'
+        docker.image("node:${NODE_VERSION}").inside {
+          sh 'npm install && npm run production:build'
+        }
       }
     }
 
     stage('Build Docker image') {
-      def newImage = docker.build("aos-client", "-f build_config/web.dockerfile --build-arg NODE_ENV=production .")
-      docker.withRegistry("https://239150759114.dkr.ecr.us-west-1.amazonaws.com", "ecr:us-west-1:aws-ecr-cred") {
-        newImage.push("${env.BUILD_ID}")
-        newImage.push("latest")
+      dir('client') {
+        def newImage = docker.build("aos-client", "-f build_config/web.dockerfile --build-arg NODE_ENV=production .")
+        docker.withRegistry("https://239150759114.dkr.ecr.us-west-1.amazonaws.com", "ecr:us-west-1:aws-ecr-cred") {
+          newImage.push("${env.BUILD_ID}")
+          newImage.push("latest")
+        }
       }
     }
 
