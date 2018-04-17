@@ -1,18 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Loadable from 'react-loadable';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import NavHeader from './component/NavHeader';
 import PageReport from './page/PageReport';
 import PageData from './page/PageData';
 require('./component/base.less');
 
-
-// const Game = Loadable({
-//   loader: () => (<span>Game</span>),
-//   loading: () => <div>Loading...</div>,
-// });
-const Game = () => (<span>Game</span>);
 
 const NavHeaderWrapper = () => (
   <Switch>

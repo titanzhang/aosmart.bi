@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev:client": "webpack-dev-server --config build_config/webpack.dev.js",
-    "testBuild": "webpack --config build_config/webpack.dev.js",
+    "production:build": "webpack --config build_config/webpack.prod.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -25,9 +25,7 @@
     "optimize-css-assets-webpack-plugin": "^4.0.0",
     "react": "^16.3.1",
     "react-dom": "^16.3.1",
-    "react-loadable": "^5.3.1",
     "react-router-dom": "^4.2.2",
-    "redux": "^3.7.2",
     "style-loader": "^0.20.3",
     "uglifyjs-webpack-plugin": "^1.2.4",
     "webpack": "^4.5.0",

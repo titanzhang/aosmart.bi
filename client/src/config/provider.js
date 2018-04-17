@@ -3,8 +3,9 @@ const providers = {
   amazon: 'amazon'
 };
 
+const pool = 'http://localhost:3000';
 const apis = {};
-apis[providers.ebay] = 'http://localhost:3000/etl/file/ebay';
-apis[providers.amazon] = 'http://localhost:3000/etl/file/amazon';
+apis[providers.ebay] = `${pool}/etl/file/ebay`;
+apis[providers.amazon] = `${pool}/etl/file/amazon`;
 
 export { providers, apis };
