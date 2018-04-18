@@ -1,4 +1,5 @@
 import React from 'react';
+import DataParser from '../common/DataParser';
 // import CSV from 'csvtojson';
 require('./DataUpload.less');
 require('./button.less');
@@ -40,30 +41,75 @@ class DataUpload extends React.Component {
     this.account = event.target.value;
   }
 
+  readFile(file) {
+    return new Promise( (resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (evt) => resolve(evt.target.result);
+      reader.readAsText(file);
+    });
+  }
+
+  async groupSendOrders({orders, size, store, api}) {
+    const orderGroups = [];
+    let group = [];
+    for (const order of orders) {
+      if (group.length >= size) {
+        orderGroups.push(group);
+        group = [];
+      }
+      group.push(order);
+    }
+    if (group.length > 0) orderGroups.push(group);
+
+    const result = { status: true, data: { success: 0, fail: 0 } };
+    for (const orderGroup of orderGroups) {
+      const resp = await this.sendOrders({orders: orderGroup, store: store, api: api});
+      result.status = result.status && resp.status;
+      if (resp.data) {
+        result.data.success += resp.data.success;
+        result.data.fail += resp.data.fail;
+      }
+    }
+
+    return result;
+  }
+
+  async sendOrders({orders, store, api}) {
+    const formBody = [];
+    formBody.push(`orders=${encodeURIComponent(JSON.stringify(Object.values(orders)))}`);
+    formBody.push(`store=${encodeURIComponent(store)}`);
+
+    const response = await fetch(api, {
+      method: 'POST',
+      body: formBody.join('&'),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+
+    return response.json();
+  }
+
   upload() {
     try {
       if (!this.file) throw Texts.msg_no_file;
       if (!this.account || this.account.trim().length === 0) throw Texts.msg_no_account;
 
       this.setState({isUploading: true});
-      const data = new FormData();
-      data.append('file', this.file);
-      data.append('no_header', this.noHeader);
-      data.append('account', this.account);
-
-      fetch(this.api, {
-        method: 'POST',
-        body: data
-      })
-      .then( (response) => response.json() )
-      .then( (response) => {
-        this.setState({isUploading: false});
-        setTimeout(()=>this.callback({response: response}),0);
-      })
-      .catch( (error) => {
-        this.setState({isUploading: false});
-        setTimeout(()=>this.callback({error: Texts.msg_upload_fail}),0);
-      });
+      this.readFile(this.file)
+        .then( (content) => DataParser().parse({text: content, noHeader: this.noHeader}))
+        .then( (orders) => this.groupSendOrders({
+          orders: Object.values(orders),
+          size: 100,
+          store: this.account,
+          api: this.api
+        }))
+        .then( (response) => {
+            this.setState({isUploading: false});
+            setTimeout(()=>this.callback({response: response}),0);
+        })
+        .catch( (error) => {
+          this.setState({isUploading: false});
+          setTimeout(()=>this.callback({error: Texts.msg_upload_fail}),0);
+        })
     } catch(e) {
       this.setState({isUploading: false});
       setTimeout(()=>this.callback({error: e}),0);

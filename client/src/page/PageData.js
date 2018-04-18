@@ -6,8 +6,8 @@ import { providers,  apis as providerApi } from '../config/provider.js';
 const Texts = {
   nav_ebay: 'eBay',
   nav_amazon: 'Amazon',
-  upload_ebay: 'Import eBay data',
-  upload_amazon: 'Import Amazon data',
+  upload_ebay: 'Import eBay order',
+  upload_amazon: 'Import Amazon order',
   msg_upload_fail: 'Data processing failed',
   msg_upload_success: 'Data processing done'
 };
@@ -55,7 +55,11 @@ class PageData extends React.Component {
         alert(error.message || error);
       }
       if (response) {
-        alert(`${Texts.msg_upload_success}(success:${response.data.success}, fail:${response.data.fail})`)
+        if (!response.status) {
+          alert(`${Texts.msg_upload_fail}(success:${response.data? response.data.success: 'N/A'}, fail:${response.data? response.data.fail: 'N/A'})`);
+        } else {
+          alert(`${Texts.msg_upload_success}(success:${response.data.success}, fail:${response.data.fail})`)
+        }
       }
     }
   }
