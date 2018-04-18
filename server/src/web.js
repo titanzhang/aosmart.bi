@@ -20,6 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/etl/file/order/:site', require('./entry/controller.EtlFileOrder'));
 // /report/metric?d=[start,end]&acc=site_account&fl=[sa,sq,oc,co,pf,mg]
 app.get('/report/metric', require('./entry/controller.ReportMetric'));
+app.get('/report/histogram', require('./entry/controller.ReportHistogram'));
 // app.get('/product/extract/:url', require('./controller/ProductExtractApiController'));
 // app.get('/product/info/:url', require('./controller/ProductInfoApiController'));
 

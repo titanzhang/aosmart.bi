@@ -16,7 +16,7 @@ module.exports = (request, response) => {
 };
 
 // URL pattern
-// /report/metric?d=[start,end]&acc=[site_account, site_account]&fl=[sa,sq,oc,co,pf,mg]
+// /report/histogram?d=[start,end]&acc=[site_account, site_account]
 function createController(request) {
 
   function parseParameter({req}) {
@@ -24,7 +24,6 @@ function createController(request) {
       dateStart: null,
       dateEnd: null,
       accounts: [], // {site: ..., account: ...}
-      filter: []
     };
 
     try {
@@ -48,34 +47,33 @@ function createController(request) {
         }
       }
 
-      if (req.query.fl) {
-        reqParam.filter = [].concat(JSON.parse(req.query.fl));
-      }
-
       return reqParam;
     } catch(e) {
       throw { message: 'Invalid URL parameters' };
     }
   }
 
-  async function getOrderCount({dateStart, dateEnd, accounts}) {
-    const data = await OrderDAO.sumByDateAccount({
+  async function getOrderHist({dateStart, dateEnd, accounts}) {
+    const data = await OrderDAO.sumByDateAccountDaily({
       dateStart: dateStart,
       dateEnd: dateEnd,
       accounts: accounts
     });
 
-    return {
-      orderCount: data.orderCount,
-      saleCount: data.saleCount,
-      saleAmount: data.saleAmount
-    };
+    return data.map( (info) => {
+      return {
+        date: info.date,
+        orderCount: info.orderCount,
+        saleCount: info.saleCount,
+        saleAmount: info.saleAmount
+      };
+    })
   }
 
   return {
     run: async function() {
       const {dateStart, dateEnd, accounts, filter} = parseParameter({req:request});
-      const result = await getOrderCount({
+      const result = await getOrderHist({
         dateStart: dateStart,
         dateEnd: dateEnd,
         accounts: accounts
