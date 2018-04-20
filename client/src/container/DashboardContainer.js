@@ -2,14 +2,29 @@ import React from 'react';
 import Dashboard from '../component/Dashboard';
 import backendConfig from '../config/backend';
 
-const date2str = function(date) {
-  let month = date.getMonth() + 1,
-    day = date.getDate(),
-    year = date.getFullYear();
+const date2str = function(date, sep='') {
+  let month = date.getUTCMonth() + 1,
+    day = date.getUTCDate(),
+    year = date.getUTCFullYear();
   month = month < 10? '0' + month: month;
   day = day < 10? '0' + day: day;
-  return `${month}${day}${year}`;
+  return `${month}${sep}${day}${sep}${year}`;
 };
+
+// date: MMDDYYYY
+// account: site_store
+function buildApiUrl({baseUrl, dateStart, dateEnd, accounts}) {
+  let url = baseUrl, sep = '?';
+  if (dateStart && dateEnd) {
+    url += `${sep}d=${encodeURIComponent(JSON.stringify([dateStart, dateEnd]))}`;
+    sep = '&';
+  }
+  if (accounts && accounts.length > 0) {
+    url += `${sep}acc=${encodeURIComponent(JSON.stringify(accounts))}`;
+    sep = '&';
+  }
+  return url;
+}
 
 const defaultMetrics = {
   sale_amount: {sum:0},
@@ -25,6 +40,7 @@ class DashboardContainer extends React.Component {
     super(props);
     this.state = {
       metrics: defaultMetrics,
+      hists: [],
       isFilterEnabled: false
     };
 
@@ -36,58 +52,64 @@ class DashboardContainer extends React.Component {
 
   }
 
-  // date: MMDDYYYY
-  // account: site_store
-  buildApiCall({dateStart, dateEnd, accounts}) {
-    let url = backendConfig.metric, sep = '?';
-    if (dateStart && dateEnd) {
-      url += `${sep}d=${encodeURIComponent(JSON.stringify([dateStart, dateEnd]))}`;
-      sep = '&';
-    }
-    if (accounts && accounts.length > 0) {
-      url += `${sep}acc=${encodeURIComponent(JSON.stringify(accounts))}`;
-      sep = '&';
-    }
-    return url;
-  }
-
-  getData({dateStart, dateEnd, accounts}) {
-    const url = this.buildApiCall({
-      dateStart: dateStart,
-      dateEnd: dateEnd,
-      accounts: accounts
-    });
-
-    return fetch(url)
-      .then( (response) => response.json())
-      .then( (data) => {
-        if (data.status) {
-          return data.data;
-        } else {
-          return false;
+  async getData({dateStart, dateEnd, accounts, dataTypes}) {
+    const responseHandler = {
+      metric: (resp) => {
+        if (!resp) return;
+        const newModel = {};
+        if (resp.saleAmount !== undefined) {
+          newModel.sale_amount = {sum:resp.saleAmount.toFixed(2)};
         }
+        if (resp.saleCount !== undefined) {
+          newModel.sale_count = {sum: resp.saleCount};
+        }
+        if (resp.orderCount !== undefined) {
+          newModel.order_count = {sum: resp.orderCount};
+        }
+        this.setState({metrics: Object.assign(this.state.metrics, newModel)});
+      },
+      histogram: (resp) => {
+        if (!resp) return;
+        const saleAmountHist = {type: 'sale_amount', xList:[], yList:[]},
+          saleCountHist = {type: 'sale_count', xList: [], yList: []},
+          orderCountHist = {type: 'order_count', xList: [], yList: []};
+        for (const data of resp) {
+          const date = date2str(new Date(data.date), '/');
+          saleAmountHist.xList.push(date); saleAmountHist.yList.push(data.saleAmount.toFixed(2));
+          saleCountHist.xList.push(date); saleCountHist.yList.push(data.saleCount);
+          orderCountHist.xList.push(date); orderCountHist.yList.push(data.orderCount);
+        }
+        this.setState({hists: [saleAmountHist, saleCountHist, orderCountHist]});
+      }
+    };
+
+    async function callApi(baseUrl) {
+      const url = buildApiUrl({
+        baseUrl: baseUrl,
+        dateStart: dateStart,
+        dateEnd: dateEnd,
+        accounts: accounts
       });
+
+      const response = await fetch(url);
+      const data = await response.json();
+      if (data.status) {
+        return data.data;
+      } else {
+        return false;
+      }
+    }
+
+    const [respMetric, respHist] = await Promise.all([
+      callApi(backendConfig.metric),
+      callApi(backendConfig.histogram)
+    ]);
+    responseHandler.metric(respMetric);
+    responseHandler.histogram(respHist);
   }
 
-  updateData(resp) {
-    const newModel = {};
-    if (resp.saleAmount !== undefined) {
-      newModel.sale_amount = {sum:resp.saleAmount.toFixed(2)};
-    }
-    if (resp.saleCount !== undefined) {
-      newModel.sale_count = {sum: resp.saleCount};
-    }
-    if (resp.orderCount !== undefined) {
-      newModel.order_count = {sum: resp.orderCount};
-    }
-    this.setState({model: Object.assign(this.state.metrics, newModel)});
-  }
 
   componentDidMount() {
-    // Promise.resolve()
-    //   .then(()=>this.getData())
-    //   .then( (resp) => this.updateData(resp) )
-    //   .catch((e)=>{});
   }
 
   filterStoreChange(site, name) {
@@ -115,20 +137,11 @@ class DashboardContainer extends React.Component {
     return () => {
       Promise.resolve()
         .then(()=>this.getData(this.filter))
-        .then( (resp) => this.updateData(resp) )
-        .catch((e)=>{});
+        .catch((e)=>{console.log(e)});
     }
   }
 
   render() {
-    const metrics = {
-      sale_amount: this.state.metrics.sale_amount,
-      sale_count: this.state.metrics.sale_count,
-      order_count: this.state.metrics.order_count,
-      cost: this.state.metrics.cost,
-      profit: this.state.metrics.profit,
-      margin: this.state.metrics.margin
-    };
     const filter = {
       sites: [
         { name: 'ebay', stores: [{name: 'aosmart'}, {name: 'aosmart1'}, {name: 'aosmart2'}] },
@@ -142,7 +155,7 @@ class DashboardContainer extends React.Component {
       applyHandler: this.filterApply(),
       isEnabled: this.state.isFilterEnabled
     };
-    return <Dashboard metrics={metrics} filter={filter}/>;
+    return <Dashboard metrics={this.state.metrics} filter={filter} hists={this.state.hists}/>;
   }
 }
 

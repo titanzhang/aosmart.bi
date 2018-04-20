@@ -62,7 +62,7 @@ function createController(request) {
 
     return data.map( (info) => {
       return {
-        date: info.date,
+        date: info.date.getTime(),
         orderCount: info.orderCount,
         saleCount: info.saleCount,
         saleAmount: info.saleAmount

@@ -1,6 +1,7 @@
 import React from 'react';
 
 const MetricGrid = require('./MetricGrid');
+import Histogram from './Histogram';
 import DataFilter from './DataFilter';
 require('./Dashboard.less');
 require('./button.less');
@@ -11,7 +12,13 @@ const Texts = {
   order_count: 'Order Count',
   cost: 'Cost',
   profit: 'Profit',
-  margin: 'Margin'
+  margin: 'Margin',
+  xTitle: {
+    sale_amount: 'Date', sale_count: 'Date', order_count: 'Date'
+  },
+  yTitle: {
+    sale_amount: 'Sale Amount', sale_count: 'Sale Count', order_count: 'Order Count'
+  }
 };
 
 const buildMetric = (model, name) => {
@@ -21,12 +28,14 @@ const buildMetric = (model, name) => {
   )
 };
 
-const Dashboard = (props) => {
-  const metrics = props.metrics || {};
+function buildHistogram({key, title, xList, yLabel, yList}) {
+  return <div key={key} className='dashboard__row'><Histogram title={title} xList={xList} yLabel={yLabel} yList={yList} /></div>
+}
 
+const Dashboard = ({filter, metrics, hists}) => {
   return (
     <div className='dashboard'>
-      <DataFilter {...props.filter} />
+      <DataFilter {...filter} />
       <div className='dashboard__row'>
         {buildMetric(metrics.sale_amount, 'sale_amount')}
         {buildMetric(metrics.sale_count, 'sale_count')}
@@ -34,6 +43,15 @@ const Dashboard = (props) => {
         {buildMetric(metrics.cost, 'cost')}
         {buildMetric(metrics.profit, 'profit')}
         {buildMetric(metrics.margin, 'margin')}
+      </div>
+      <div>
+        {hists.map( (hist, index) => buildHistogram({
+          key: index,
+          title: Texts[hist.type],
+          xList: hist.xList,
+          yLabel: Texts.yTitle[hist.type],
+          yList: hist.yList
+        }))}
       </div>
     </div>
   );
