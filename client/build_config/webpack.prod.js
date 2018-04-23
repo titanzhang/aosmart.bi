@@ -9,6 +9,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 common.output.filename = 'js/[name].[chunkhash].js';
 
 module.exports = merge(common, {
+	mode: 'production',
 	devtool: 'source-map',
 
 	plugins: [

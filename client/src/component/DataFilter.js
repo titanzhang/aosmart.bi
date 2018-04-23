@@ -3,8 +3,22 @@ import DayPickerInput from 'react-day-picker/DayPickerInput';
 import 'react-day-picker/lib/style.css';
 // import formatDate from 'date-fns/format';
 // import parseDate from 'date-fns/parse';
-import { format as formatDate, parse as parseDate } from 'date-fns';
+// import { format as formatDate, parse as parseDate } from 'date-fns';
 require('./DataFilter.less');
+
+function formatDate(date, sep='/') {
+  const year = date.getUTCFullYear(),
+    month = date.getUTCMonth() + 1,
+    day = date.getUTCDate();
+  return `${month<10?'0':''}${month}${sep}${day<10?'0':''}${day}${sep}${year}`;
+}
+
+function parseDate(str, sep='/') {
+  const [month, date, year] = str.split(sep).map((v)=>parseInt(v));
+  if (isNaN(month) || isNaN(date) || isNaN(year)) return;
+  if ((month < 1|| month > 12) || (date < 1 || date > 31) || (year < 1970)) return;
+  return new Date(year, month - 1, date);
+}
 
 const Stores = function({site, storeList, storeChangeHandler}) {
   return (
@@ -32,31 +46,28 @@ const buildApplyButton = function({isEnabled, applyHandler}) {
 };
 
 const DataFilter = ({dateStart, dateEnd, sites, storeChangeHandler, startDateChangeHandler, endDateChangeHandler, applyHandler, isEnabled}) => {
-  const FORMAT = 'MM/DD/YYYY';
+  const SEP = '/', FORMAT = 'MM/DD/YYYY';
   return (
     <div>
       <div className='datafilter__row'>
         {/* <div className='col col-3'><label>Start data: <input type='text' placeholder='MMDDYYYY' defaultValue={dateStart} onChange={startDateChangeHandler}/></label></div> */}
-        <div className='col col-3'><label>Start date:{' '}
+        <span>Date:{' '}
           <DayPickerInput
             formatDate={formatDate}
-            format={FORMAT}
+            format={SEP}
             parseDate={parseDate}
             placeholder={FORMAT}
             value={dateStart}
             onDayChange={day => startDateChangeHandler(day)} />
-          </label>
-        </div>
-        <div className='col col-3'><label>Start date:{' '}
+          {' '}--{' '}
           <DayPickerInput
             formatDate={formatDate}
-            format={FORMAT}
+            format={SEP}
             parseDate={parseDate}
             placeholder={FORMAT}
             value={dateEnd}
             onDayChange={day => endDateChangeHandler(day)} />
-          </label>
-        </div>
+        </span>
       </div>
       <div className='datafilter__row'>
         <Sites list={sites} storeChangeHandler={storeChangeHandler}/>
