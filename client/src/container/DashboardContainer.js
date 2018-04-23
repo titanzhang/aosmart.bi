@@ -1,22 +1,22 @@
 import React from 'react';
 import Dashboard from '../component/Dashboard';
 import backendConfig from '../config/backend';
+import dateFns from 'date-fns';
 
-const date2str = function(date, sep='') {
-  let month = date.getUTCMonth() + 1,
-    day = date.getUTCDate(),
-    year = date.getUTCFullYear();
-  month = month < 10? '0' + month: month;
-  day = day < 10? '0' + day: day;
-  return `${month}${sep}${day}${sep}${year}`;
-};
+function date2str(date, sep='') {
+  const year = date.getUTCFullYear(),
+    month = date.getUTCMonth() + 1,
+    day = date.getUTCDate();
+  return `${month<10?'0':''}${month}${sep}${day<10?'0':''}${day}${sep}${year}`;
+}
 
-// date: MMDDYYYY
 // account: site_store
 function buildApiUrl({baseUrl, dateStart, dateEnd, accounts}) {
   let url = baseUrl, sep = '?';
   if (dateStart && dateEnd) {
-    url += `${sep}d=${encodeURIComponent(JSON.stringify([dateStart, dateEnd]))}`;
+    url += `${sep}d=${encodeURIComponent(JSON.stringify([
+      date2str(dateStart),
+      date2str(dateEnd)]))}`;
     sep = '&';
   }
   if (accounts && accounts.length > 0) {
@@ -45,8 +45,8 @@ class DashboardContainer extends React.Component {
     };
 
     this.filter = {
-      dateStart: date2str(new Date(Date.now() - 7 * 24 * 3600 * 1000)),
-      dateEnd: date2str(new Date()),
+      dateStart: new Date(Date.now() - 7 * 24 * 3600 * 1000),
+      dateEnd: new Date(),
       accounts: []
     };
 
@@ -128,8 +128,8 @@ class DashboardContainer extends React.Component {
   }
 
   filterDateChange(type) {
-    return (event) => {
-      this.filter[type] = event.target.value;
+    return (date) => {
+      this.filter[type] = date;
     }
   }
 

@@ -1,4 +1,9 @@
 import React from 'react';
+import DayPickerInput from 'react-day-picker/DayPickerInput';
+import 'react-day-picker/lib/style.css';
+// import formatDate from 'date-fns/format';
+// import parseDate from 'date-fns/parse';
+import { format as formatDate, parse as parseDate } from 'date-fns';
 require('./DataFilter.less');
 
 const Stores = function({site, storeList, storeChangeHandler}) {
@@ -27,11 +32,31 @@ const buildApplyButton = function({isEnabled, applyHandler}) {
 };
 
 const DataFilter = ({dateStart, dateEnd, sites, storeChangeHandler, startDateChangeHandler, endDateChangeHandler, applyHandler, isEnabled}) => {
+  const FORMAT = 'MM/DD/YYYY';
   return (
     <div>
       <div className='datafilter__row'>
-        <div className='col col-3'><label>Start data: <input type='text' placeholder='MMDDYYYY' defaultValue={dateStart} onChange={startDateChangeHandler}/></label></div>
-        <div className='col col-3'><label>End data: <input type='text' placeholder='MMDDYYYY' defaultValue={dateEnd} onChange={endDateChangeHandler}/></label></div>
+        {/* <div className='col col-3'><label>Start data: <input type='text' placeholder='MMDDYYYY' defaultValue={dateStart} onChange={startDateChangeHandler}/></label></div> */}
+        <div className='col col-3'><label>Start date:{' '}
+          <DayPickerInput
+            formatDate={formatDate}
+            format={FORMAT}
+            parseDate={parseDate}
+            placeholder={FORMAT}
+            value={dateStart}
+            onDayChange={day => startDateChangeHandler(day)} />
+          </label>
+        </div>
+        <div className='col col-3'><label>Start date:{' '}
+          <DayPickerInput
+            formatDate={formatDate}
+            format={FORMAT}
+            parseDate={parseDate}
+            placeholder={FORMAT}
+            value={dateEnd}
+            onDayChange={day => endDateChangeHandler(day)} />
+          </label>
+        </div>
       </div>
       <div className='datafilter__row'>
         <Sites list={sites} storeChangeHandler={storeChangeHandler}/>
