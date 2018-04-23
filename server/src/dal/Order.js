@@ -23,7 +23,7 @@ function getClient() {
 function buildQuery({docType, dateStart, dateEnd, accounts}) {
   const terms = [];
   if (docType) terms.push({term: {type: docType}});
-  if (dateStart && dateEnd) terms.push({range: {date: {gte: dateStart.getTime(), lt: dateEnd.getTime()}}});
+  if (dateStart && dateEnd) terms.push({range: {date: {gte: dateStart.getTime(), lte: dateEnd.getTime()}}});
   if (accounts && accounts.length > 0) terms.push({ terms: { store_full: accounts.map( ({site, account}) => `${site}_${account}`)}});
 
   return {bool: {must: terms}};
