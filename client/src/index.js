@@ -22,12 +22,12 @@ function Loading(props) {
 }
 
 const PageReport = Loadable({
-  loader: () => import(/* webpackChunkName: 'PageReport' */'./page/PageReport'),
+  loader: () => import('./page/PageReport'),
   loading: (props) => Loading(props)
 });
 
 const PageData = Loadable({
-  loader: () => import(/* webpackChunkName: 'PageData' */'./page/PageData'),
+  loader: () => import('./page/PageData'),
   loading: (props) => Loading(props)
 });
 
