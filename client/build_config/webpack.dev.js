@@ -8,6 +8,13 @@ module.exports = merge(common, {
 	mode: 'development',
 	devtool: 'inline-source-map',
 
+	output: {
+    filename: 'js/[name].js',
+    chunkFilename: 'js/[name].js',
+    publicPath: '/',
+    path: path.resolve(__dirname, '../build')
+  },
+
   devServer: {
 		historyApiFallback: true,
     contentBase: path.resolve(__dirname, '../build'),

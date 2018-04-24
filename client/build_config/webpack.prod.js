@@ -6,11 +6,16 @@ const common = require('./webpack.common.js');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 // const ManifestPlugin = require('webpack-manifest-plugin');
 
-common.output.filename = 'js/[name].[chunkhash].js';
-
 module.exports = merge(common, {
 	mode: 'production',
 	devtool: 'source-map',
+
+	output: {
+    filename: 'js/[name].[chunkhash].js',
+    chunkFilename: 'js/[name].[chunkhash].js',
+    publicPath: '/',
+    path: path.resolve(__dirname, '../build')
+  },
 
 	plugins: [
     new ExtractTextPlugin('css/[name].[hash].css'),

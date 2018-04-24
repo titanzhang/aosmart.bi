@@ -9,17 +9,12 @@ module.exports = {
   	index: './src/index.js'
   },
 
-  output: {
-    filename: 'js/[name].js',
-    publicPath: '/',
-    path: path.resolve(__dirname, '../build')
-  },
-
 	module: {
 		rules: [
 			{
         test: /\.js$/, exclude: /node_modules/, loader: "babel-loader",
         query: {
+          plugins: ["syntax-dynamic-import"],
           presets: ["react"]
         }
       },

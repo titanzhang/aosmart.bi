@@ -1,9 +1,6 @@
 import React from 'react';
 import DayPickerInput from 'react-day-picker/DayPickerInput';
 import 'react-day-picker/lib/style.css';
-// import formatDate from 'date-fns/format';
-// import parseDate from 'date-fns/parse';
-// import { format as formatDate, parse as parseDate } from 'date-fns';
 require('./DataFilter.less');
 
 function formatDate(date, sep='/') {
