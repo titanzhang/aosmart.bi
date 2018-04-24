@@ -18,7 +18,10 @@ module.exports = merge(common, {
   },
 
 	plugins: [
-    new ExtractTextPlugin('css/[name].[hash].css'),
+    new ExtractTextPlugin({
+			filename: 'css/[name].[hash].css',
+			allChunks: true
+		}),
 		new UglifyJSPlugin({
 			sourceMap: true
 		}),
