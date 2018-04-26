@@ -1,25 +1,30 @@
 import React from 'react';
 import NavSidebar from '../component/NavSidebar';
-import DataUpload from '../component/DataUpload';
+import OrderUpload from '../component/DataUpload';
+import CogUpload from '../component/CogUpload';
 import { providers,  apis as providerApi } from '../config/provider.js';
 
 const Texts = {
   nav_ebay: 'eBay',
   nav_amazon: 'Amazon',
+  nav_cog: 'COG',
   upload_ebay: 'Import eBay order',
   upload_amazon: 'Import Amazon order',
+  upload_cog: 'Import Cost-of-Goods',
   msg_upload_fail: 'Data processing failed',
   msg_upload_success: 'Data processing done'
 };
 
 const defaultNavList = [
   { id: providers.ebay, title: Texts.nav_ebay, href: null, active: false },
-  { id: providers.amazon, title: Texts.nav_amazon, href: null, active: false }
+  { id: providers.amazon, title: Texts.nav_amazon, href: null, active: false },
+  { id: providers.cog, title: Texts.nav_cog, href: null, active: false },
 ];
 
 const uploadTitles = {};
 uploadTitles[providers.ebay] = Texts.upload_ebay;
 uploadTitles[providers.amazon] = Texts.upload_amazon;
+uploadTitles[providers.cog] = Texts.upload_cog;
 
 class PageData extends React.Component {
   constructor(props) {
@@ -64,18 +69,36 @@ class PageData extends React.Component {
     }
   }
 
+  buildUploadForm({provider}) {
+    if (provider === providers.ebay || provider === providers.amazon) {
+      return (
+        <OrderUpload
+          key={provider}
+          title={uploadTitles[provider]}
+          api={providerApi[provider]}
+          provider={provider}
+          callback={this.uploadCallback()}
+        />
+      );
+    } else if (provider === providers.cog) {
+      return (
+        <CogUpload
+          key={provider}
+          title={uploadTitles[provider]}
+          api={providerApi[provider]}
+          provider={provider}
+          callback={this.uploadCallback()}
+        />
+      );
+    }
+  }
+
   render() {
     return (
       <div>
         <NavSidebar linkList={this.state.navList} />
         <div className='main'>
-          <DataUpload
-            key={this.state.providerID}
-            title={uploadTitles[this.state.providerID]}
-            api={providerApi[this.state.providerID]}
-            provider={this.state.providerID}
-            callback={this.uploadCallback()}
-          />
+          {this.buildUploadForm({provider: this.state.providerID})}
         </div>
       </div>
     );

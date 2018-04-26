@@ -1,21 +1,8 @@
 import React from 'react';
 import DayPickerInput from 'react-day-picker/DayPickerInput';
 import 'react-day-picker/lib/style.css';
+import Utils from '../common/Utils';
 require('./DataFilter.less');
-
-function formatDate(date, sep='/') {
-  const year = date.getUTCFullYear(),
-    month = date.getUTCMonth() + 1,
-    day = date.getUTCDate();
-  return `${month<10?'0':''}${month}${sep}${day<10?'0':''}${day}${sep}${year}`;
-}
-
-function parseDate(str, sep='/') {
-  const [month, date, year] = str.split(sep).map((v)=>parseInt(v));
-  if (isNaN(month) || isNaN(date) || isNaN(year)) return;
-  if ((month < 1|| month > 12) || (date < 1 || date > 31) || (year < 1970)) return;
-  return new Date(year, month - 1, date);
-}
 
 const Stores = function({site, storeList, storeChangeHandler}) {
   return (
@@ -50,17 +37,17 @@ const DataFilter = ({dateStart, dateEnd, sites, storeChangeHandler, startDateCha
         {/* <div className='col col-3'><label>Start data: <input type='text' placeholder='MMDDYYYY' defaultValue={dateStart} onChange={startDateChangeHandler}/></label></div> */}
         <span>Date:{' '}
           <DayPickerInput
-            formatDate={formatDate}
+            formatDate={Utils.formatDate}
             format={SEP}
-            parseDate={parseDate}
+            parseDate={Utils.parseDate}
             placeholder={FORMAT}
             value={dateStart}
             onDayChange={day => startDateChangeHandler(day)} />
           {' '}--{' '}
           <DayPickerInput
-            formatDate={formatDate}
+            formatDate={Utils.formatDate}
             format={SEP}
-            parseDate={parseDate}
+            parseDate={Utils.parseDate}
             placeholder={FORMAT}
             value={dateEnd}
             onDayChange={day => endDateChangeHandler(day)} />

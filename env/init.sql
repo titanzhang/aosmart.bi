@@ -11,12 +11,10 @@ PUT product
         "type": { "type": "keyword" },
         "sku": { "type": "keyword" },
         "name": { "type": "keyword" },
-        "sku_alias": { "type": "keyword" },
         "asin": { "type": "keyword" },
-        "cost_of_goods": {
+        "cog": {
           "type": "nested",
           "properties": {
-            "cog_type": { "type": "byte" },
             "amount": { "type": "float" },
             "effective_date": { "type": "date" }
           }
@@ -65,7 +63,8 @@ PUT order
           "properties": {
             "sku": { "type": "keyword" },
             "quantity": { "type": "long" },
-            "price": { "type": "float" }
+            "price": { "type": "float" },
+            "cog": { "type": "float" }
           }
         },
         "date": { "type": "date" }

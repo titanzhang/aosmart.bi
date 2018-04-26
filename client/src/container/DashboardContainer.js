@@ -1,22 +1,15 @@
 import React from 'react';
 import Dashboard from '../component/Dashboard';
 import backendConfig from '../config/backend';
-import dateFns from 'date-fns';
-
-function date2str(date, sep='') {
-  const year = date.getUTCFullYear(),
-    month = date.getUTCMonth() + 1,
-    day = date.getUTCDate();
-  return `${month<10?'0':''}${month}${sep}${day<10?'0':''}${day}${sep}${year}`;
-}
+import Utils from '../common/Utils';
 
 // account: site_store
 function buildApiUrl({baseUrl, dateStart, dateEnd, accounts}) {
   let url = baseUrl, sep = '?';
   if (dateStart && dateEnd) {
     url += `${sep}d=${encodeURIComponent(JSON.stringify([
-      date2str(dateStart),
-      date2str(dateEnd)]))}`;
+      Utils.formatDate(dateStart, ''),
+      Utils.formatDate(dateEnd, '')]))}`;
     sep = '&';
   }
   if (accounts && accounts.length > 0) {
@@ -74,7 +67,7 @@ class DashboardContainer extends React.Component {
           saleCountHist = {type: 'sale_count', xList: [], yList: []},
           orderCountHist = {type: 'order_count', xList: [], yList: []};
         for (const data of resp) {
-          const date = date2str(new Date(data.date), '/');
+          const date = Utils.formatDate(new Date(data.date), '/');
           saleAmountHist.xList.push(date); saleAmountHist.yList.push(data.saleAmount.toFixed(2));
           saleCountHist.xList.push(date); saleCountHist.yList.push(data.saleCount);
           orderCountHist.xList.push(date); orderCountHist.yList.push(data.orderCount);

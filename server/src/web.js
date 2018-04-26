@@ -18,6 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Routing rules
 // app.post('/etl/file/ebay', upload.single('file'), require('./entry/controller.EtlFileEbay'));
 app.post('/etl/file/order/:site', require('./entry/controller.EtlFileOrder'));
+app.post('/etl/file/cog', require('./entry/controller.EtlFileCog'));
 // /report/metric?d=[start,end]&acc=site_account&fl=[sa,sq,oc,co,pf,mg]
 app.get('/report/metric', require('./entry/controller.ReportMetric'));
 app.get('/report/histogram', require('./entry/controller.ReportHistogram'));

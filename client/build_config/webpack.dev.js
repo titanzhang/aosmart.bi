@@ -22,6 +22,9 @@ module.exports = merge(common, {
   },
 
   plugins: [
-		new ExtractTextPlugin('css/[name].css')
+		new ExtractTextPlugin({
+			filename: 'css/[name].css',
+			allChunks: true
+		})
 	]
 });
