@@ -21,6 +21,51 @@ function getClient() {
 }
 
 const ProductDAO = {
+  getCostList: async function({type='aos'}) {
+    try {
+      const client = getClient();
+      const body = {
+        _source: ['sku'],
+        script_fields: {
+          cogs: {
+            script: {
+              source: "def r = params['_source']['cog']; r.sort( (a,b)->(int)(b.effective_date-a.effective_date) ); return r;",
+              lang: 'painless'
+            }
+          }
+        },
+        query: {
+          "term": { "type": type }
+        }
+      }
+
+      const scrollTime = '5s', pageSize = 100;
+      let resp = await client.search({index: config.index, scroll: scrollTime, size: pageSize, body: body});
+      if (resp.errors) throw resp.errors;
+
+      let result = [];
+      while (resp.hits.hits.length > 0) {
+        result = result.concat(
+          resp.hits.hits.map( (data) => {
+                const cog = data.fields.cogs.map( ({amount, effective_date}) => (
+                  ProductDO.cost({ amount: amount, effective_date: effective_date })
+                ));
+                return ProductDO.product({
+                  sku: [].concat(data._source.sku),
+                  cog: cog
+                });
+              })
+            );
+        resp = await client.scroll({scrollId: resp._scroll_id, scroll: scrollTime});
+        if (resp.errors) throw resp.errors;
+      }
+
+      return result;
+    } catch(e) {
+      throw { message: `Product.getCostList: ${e.message||e}` };
+    }
+  },
+
   // list: [ {sku, cost}]
   // sku: string; cost: ProductDO.cost
   bulkAddCog: async function({list, type='aos'}) {
@@ -63,11 +108,17 @@ const ProductDAO = {
 
 // Product DO
 const ProductDO = {
+  product: function({sku, cog}) {
+    return {
+      sku: sku,
+      cog: cog
+    }
+  },
 
   cost: function({amount, effective_date}) {
     return {
       amount: amount,
-      effective_date: effective_date
+      effective_date: (new Date(effective_date)).getTime()
     };
   }
 };

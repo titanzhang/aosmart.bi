@@ -1,5 +1,7 @@
 const OrderDAL = require('../entry/dal.Order');
 const OrderDAO = OrderDAL.DAO, OrderDO = OrderDAL.DO;
+const ProductDAL = require('../entry/dal.Product');
+const ProductDAO = ProductDAL.DAO, ProductDO = ProductDAL.DO;
 
 module.exports = (request, response) => {
   const controller = createController(request);
@@ -48,7 +50,30 @@ function createController(request) {
     };
   }
 
-  async function importData({data, site='ebay', store}) {
+  async function getMetadata() {
+    const cogMap = {};
+    const cogs = await ProductDAO.getCostList({});
+    for (const {sku, cog} of cogs) {
+      for (const skuid of sku) {
+        cogMap[skuid] = cog;
+      }
+    }
+    return {cogs: cogMap};
+  }
+
+  async function importData({data, cogs, site='ebay', store}) {
+    function getCog({sku, date, cogs}) {
+      if (!cogs) return 0;
+      const cogHist = cogs[sku];
+      if (cogHist === undefined) return 0;
+
+      for (const {amount, effective_date} of cogHist) {
+        if (date.getTime() >= effective_date) {
+          return amount;
+        }
+      }
+      return 0;
+    }
 
     // Convert data to DO
     const orderDOList = [];
@@ -73,7 +98,12 @@ function createController(request) {
           productDOs.push(OrderDO.product({
             sku: product[orderFields.sku],
             quantity: product[orderFields.quantity],
-            price: product[orderFields.price]
+            price: product[orderFields.price],
+            cog: getCog({
+              sku: product[orderFields.sku],
+              date: new Date(orderInfo[orderFields.paidDate]),
+              cogs: cogs
+            })
           }));
         }
       }
@@ -96,7 +126,8 @@ function createController(request) {
   return {
     run: async function() {
       const {site, store, orders} = parseParameter(request);
-      const result = await importData({data: orders, store: store, site: site});
+      const {cogs} = await getMetadata();
+      const result = await importData({data: orders, cogs: cogs, store: store, site: site});
 
       return {
         status: result.status,

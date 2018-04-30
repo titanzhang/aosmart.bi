@@ -146,11 +146,12 @@ const OrderDO = {
     };
   },
 
-  product: function({sku, quantity, price}) {
+  product: function({sku, quantity, price, cog = 0}) {
     return {
       sku: sku,
       quantity: quantity,
-      price: price
+      price: price,
+      cog: cog
     };
   },
 
