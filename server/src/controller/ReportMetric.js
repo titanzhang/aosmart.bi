@@ -68,7 +68,8 @@ function createController(request) {
     return {
       orderCount: data.orderCount,
       saleCount: data.saleCount,
-      saleAmount: data.saleAmount
+      saleAmount: data.saleAmount,
+      cogAmount: data.cogAmount
     };
   }
 

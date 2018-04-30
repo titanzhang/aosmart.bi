@@ -14,10 +14,15 @@ const Texts = {
   profit: 'Profit',
   margin: 'Margin',
   xTitle: {
-    sale_amount: 'Date', sale_count: 'Date', order_count: 'Date'
+    sale_amount: 'Date', sale_count: 'Date', order_count: 'Date', cost: 'Date'
   },
   yTitle: {
-    sale_amount: 'Sale Amount', sale_count: 'Sale Count', order_count: 'Order Count'
+    sale_amount: 'Sale Amount',
+    sale_count: 'Sale Count',
+    order_count: 'Order Count',
+    cost: 'Cost',
+    profit: 'Profit',
+    margin: 'Margin'
   }
 };
 

@@ -38,6 +38,7 @@ function buildSaleAggregations() {
       nested: {path: 'products'},
       aggs: {
         sale_count: {sum: {field: 'products.quantity'}},
+        cog: {sum: {script: 'doc["products.quantity"].value * doc["products.cog"].value'}}
         // sale_amount: {sum: {script: 'doc["products.quantity"].value * doc["products.price"].value'}}
       }
     }
@@ -91,7 +92,8 @@ const OrderDAO = {
           date: new Date(data.key),
           orderCount: data.doc_count,
           saleCount: data.product_info.sale_count.value,
-          saleAmount: data.sale_amount.value
+          saleAmount: data.sale_amount.value,
+          cogAmount: data.product_info.cog.value
         }
       });
 
@@ -122,7 +124,8 @@ const OrderDAO = {
       return {
         orderCount: response.hits.total,
         saleCount: response.aggregations.product_info.sale_count.value,
-        saleAmount: response.aggregations.sale_amount.value
+        saleAmount: response.aggregations.sale_amount.value,
+        cogAmount: response.aggregations.product_info.cog.value
       };
 
     } catch(e) {

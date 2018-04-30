@@ -65,7 +65,8 @@ function createController(request) {
         date: info.date.getTime(),
         orderCount: info.orderCount,
         saleCount: info.saleCount,
-        saleAmount: info.saleAmount
+        saleAmount: info.saleAmount,
+        cogAmount: info.cogAmount
       };
     })
   }
