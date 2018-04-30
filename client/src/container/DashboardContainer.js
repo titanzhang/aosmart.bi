@@ -76,16 +76,19 @@ class DashboardContainer extends React.Component {
           saleCountHist = {type: 'sale_count', xList: [], yList: []},
           orderCountHist = {type: 'order_count', xList: [], yList: []},
           costHist = {type: 'cost', xList: [], yList: []},
-          profitHist = {type: 'profit', xList: [], yList: []};
+          profitHist = {type: 'profit', xList: [], yList: []},
+          marginHist = {type: 'margin', xList: [], yList: []};
         for (const data of resp) {
           const date = Utils.formatDate(new Date(data.date), '/');
           saleAmountHist.xList.push(date); saleAmountHist.yList.push(data.saleAmount.toFixed(2));
           saleCountHist.xList.push(date); saleCountHist.yList.push(data.saleCount);
           orderCountHist.xList.push(date); orderCountHist.yList.push(data.orderCount);
           costHist.xList.push(date); costHist.yList.push(data.cogAmount.toFixed(2));
-          profitHist.xList.push(date); profitHist.yList.push((data.saleAmount - data.cogAmount).toFixed(2));
+          const profit = data.saleAmount - data.cogAmount;
+          profitHist.xList.push(date); profitHist.yList.push(profit.toFixed(2));
+          marginHist.xList.push(date); marginHist.yList.push((profit * 100 / data.saleAmount).toFixed(1));
         }
-        this.setState({hists: [saleAmountHist, saleCountHist, orderCountHist, costHist, profitHist]});
+        this.setState({hists: [saleAmountHist, saleCountHist, orderCountHist, costHist, profitHist, marginHist]});
       }
     };
 

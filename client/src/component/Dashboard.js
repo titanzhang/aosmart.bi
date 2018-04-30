@@ -12,7 +12,7 @@ const Texts = {
   order_count: 'Order Count',
   cost: 'Cost',
   profit: 'Profit',
-  margin: 'Margin',
+  margin: 'Margin %',
   xTitle: {
     sale_amount: 'Date', sale_count: 'Date', order_count: 'Date', cost: 'Date'
   },
@@ -33,8 +33,8 @@ const buildMetric = (model, name) => {
   )
 };
 
-function buildHistogram({key, title, xList, yLabel, yList}) {
-  return <div key={key} className='dashboard__row'><Histogram title={title} xList={xList} yLabel={yLabel} yList={yList} /></div>
+function buildHistogram({key, title, xList, yLabel, yList, isPercentage}) {
+  return <div key={key} className='dashboard__row'><Histogram title={title} xList={xList} yLabel={yLabel} yList={yList}/></div>
 }
 
 const Dashboard = ({filter, metrics, hists}) => {
