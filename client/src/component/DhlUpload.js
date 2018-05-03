@@ -1,5 +1,5 @@
 import React from 'react';
-import DataParser from '../common/UspsParser';
+import DataParser from '../common/DhlParser';
 require('./DataUpload.less');
 require('./button.less');
 
@@ -12,7 +12,7 @@ const Texts = {
   msg_upload_fail: 'Data processing failed'
 };
 
-class UspsUpload extends React.Component {
+class DhlUpload extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -139,4 +139,4 @@ class UspsUpload extends React.Component {
   }
 }
 
-export default UspsUpload;
+export default DhlUpload;

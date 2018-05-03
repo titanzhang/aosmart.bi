@@ -59,11 +59,11 @@ class DashboardContainer extends React.Component {
         if (resp.orderCount !== undefined) {
           newModel.order_count = {sum: resp.orderCount};
         }
-        if (resp.cogAmount !== undefined) {
-          newModel.cost = {sum: resp.cogAmount.toFixed(2)};
+        if (resp.cogAmount !== undefined && resp.cotAmount !== undefined) {
+          newModel.cost = {sum: (resp.cogAmount + resp.cotAmount).toFixed(2)};
         }
-        if (resp.saleAmount !== undefined && resp.cogAmount !== undefined) {
-          const profit = resp.saleAmount - resp.cogAmount;
+        if (resp.saleAmount !== undefined && resp.cogAmount !== undefined && resp.cotAmount !== undefined) {
+          const profit = resp.saleAmount - resp.cogAmount - resp.cotAmount;
           newModel.profit = {sum: profit.toFixed(2)};
           const margin = resp.saleAmount > 0? profit * 100/resp.saleAmount: 0.00;
           newModel.margin = {sum: `${margin.toFixed(1)} %`};
@@ -83,8 +83,8 @@ class DashboardContainer extends React.Component {
           saleAmountHist.xList.push(date); saleAmountHist.yList.push(data.saleAmount.toFixed(2));
           saleCountHist.xList.push(date); saleCountHist.yList.push(data.saleCount);
           orderCountHist.xList.push(date); orderCountHist.yList.push(data.orderCount);
-          costHist.xList.push(date); costHist.yList.push(data.cogAmount.toFixed(2));
-          const profit = data.saleAmount - data.cogAmount;
+          costHist.xList.push(date); costHist.yList.push((data.cogAmount + data.cotAmount).toFixed(2));
+          const profit = data.saleAmount - data.cogAmount - data.cotAmount;
           profitHist.xList.push(date); profitHist.yList.push(profit.toFixed(2));
           const margin = data.saleAmount > 0? profit * 100/data.saleAmount: 0.00;
           marginHist.xList.push(date); marginHist.yList.push((profit * 100 / data.saleAmount).toFixed(1));
