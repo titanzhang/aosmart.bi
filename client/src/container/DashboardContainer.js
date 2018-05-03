@@ -86,6 +86,7 @@ class DashboardContainer extends React.Component {
           costHist.xList.push(date); costHist.yList.push(data.cogAmount.toFixed(2));
           const profit = data.saleAmount - data.cogAmount;
           profitHist.xList.push(date); profitHist.yList.push(profit.toFixed(2));
+          const margin = data.saleAmount > 0? profit * 100/data.saleAmount: 0.00;
           marginHist.xList.push(date); marginHist.yList.push((profit * 100 / data.saleAmount).toFixed(1));
         }
         this.setState({hists: [saleAmountHist, saleCountHist, orderCountHist, costHist, profitHist, marginHist]});

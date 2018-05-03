@@ -2,15 +2,18 @@ import React from 'react';
 import NavSidebar from '../component/NavSidebar';
 import OrderUpload from '../component/DataUpload';
 import CogUpload from '../component/CogUpload';
+import UspsUpload from '../component/UspsUpload';
 import { providers,  apis as providerApi } from '../config/provider.js';
 
 const Texts = {
   nav_ebay: 'eBay',
   nav_amazon: 'Amazon',
   nav_cog: 'COG',
+  nav_usps: 'USPS Cost',
   upload_ebay: 'Import eBay order',
   upload_amazon: 'Import Amazon order',
   upload_cog: 'Import Cost-of-Goods',
+  upload_usps: 'Import USPS shipping cost',
   msg_upload_fail: 'Data processing failed',
   msg_upload_success: 'Data processing done'
 };
@@ -19,12 +22,14 @@ const defaultNavList = [
   { id: providers.ebay, title: Texts.nav_ebay, href: null, active: false },
   { id: providers.amazon, title: Texts.nav_amazon, href: null, active: false },
   { id: providers.cog, title: Texts.nav_cog, href: null, active: false },
+  { id: providers.usps, title: Texts.nav_usps, href: null, active: false },
 ];
 
 const uploadTitles = {};
 uploadTitles[providers.ebay] = Texts.upload_ebay;
 uploadTitles[providers.amazon] = Texts.upload_amazon;
 uploadTitles[providers.cog] = Texts.upload_cog;
+uploadTitles[providers.usps] = Texts.upload_usps;
 
 class PageData extends React.Component {
   constructor(props) {
@@ -83,6 +88,16 @@ class PageData extends React.Component {
     } else if (provider === providers.cog) {
       return (
         <CogUpload
+          key={provider}
+          title={uploadTitles[provider]}
+          api={providerApi[provider]}
+          provider={provider}
+          callback={this.uploadCallback()}
+        />
+      );
+    } else if (provider === providers.usps) {
+      return (
+        <UspsUpload
           key={provider}
           title={uploadTitles[provider]}
           api={providerApi[provider]}

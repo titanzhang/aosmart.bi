@@ -19,11 +19,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.post('/etl/file/ebay', upload.single('file'), require('./entry/controller.EtlFileEbay'));
 app.post('/etl/file/order/:site', require('./entry/controller.EtlFileOrder'));
 app.post('/etl/file/cog', require('./entry/controller.EtlFileCog'));
+app.post('/etl/file/shipping', require('./entry/controller.EtlFileShipping'));
 // /report/metric?d=[start,end]&acc=site_account&fl=[sa,sq,oc,co,pf,mg]
 app.get('/report/metric', require('./entry/controller.ReportMetric'));
 app.get('/report/histogram', require('./entry/controller.ReportHistogram'));
-// app.get('/product/extract/:url', require('./controller/ProductExtractApiController'));
-// app.get('/product/info/:url', require('./controller/ProductInfoApiController'));
+
+// 404 fallback
+app.get('*', require('./entry/controller.404'));
+app.post('*', require('./entry/controller.404'));
 
 // Start server
 const serverConfig = require('./entry/config.web');

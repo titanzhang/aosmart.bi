@@ -70,6 +70,36 @@ const OrderDAO = {
     return { status: !response.errors, fail: failIDs, success: successIDs };
   },
 
+  bulkUpdateCot: async function({orders}) {
+    const client = getClient();
+    const body = [];
+    for (const {order_no, cot} of orders) {
+      const action = {
+        update: { _index: config.index, _type: config.type, _id: order_no }
+      };
+      const doc = {
+        doc: {
+          cot: cot
+        }
+      };
+
+      body.push(action);
+      body.push(doc);
+    }
+
+    const response = await client.bulk({body: body});
+    const failIDs = [], successIDs = [];
+    for (const item of response.items) {
+      const data = item.update;
+      if (data.error) {
+        failIDs.push(data._id);
+      } else {
+        successIDs.push(data._id);
+      }
+    }
+    return { status: !response.errors, fail: failIDs, success: successIDs };
+  },
+
   sumByDateAccountDaily: async function({docType, dateStart, dateEnd, accounts}) {
     try {
       const client = getClient();
@@ -158,14 +188,14 @@ const OrderDO = {
     };
   },
 
-  cost: function({cot_type, amount}) {
-    return {
-      cot_type: cot_type,
-      amount: amount
-    };
+  cot: function({shipping}) {
+    const dataObj = {};
+    if (shipping) dataObj.shipping = shipping;
+
+    return dataObj;
   },
 
-  order: function({type='aos', order_no, buyer, amount_paid, cost_of_trans, site, store, store_full, products, date}) {
+  order: function({type='aos', order_no, buyer, amount_paid, cot, site, store, store_full, products, date}) {
     const dataObj = {};
     dataObj.type = type;
     dataObj.order_no = order_no;
@@ -175,7 +205,7 @@ const OrderDO = {
     dataObj.store_full = store_full || `${site}_${store}`;
     dataObj.date = date;
     if (buyer) dataObj.buyer = buyer;
-    if (cost_of_trans) dataObj.cost_of_trans = cost_of_trans;
+    if (cot) dataObj.cot = cot;
     if (products) dataObj.products = products;
 
     return dataObj;

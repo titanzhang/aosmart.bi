@@ -48,11 +48,9 @@ PUT order
           }
         },
         "amount_paid": { "type": "float" },
-        "cost_of_trans": {
-          "type": "nested",
+        "cot": {
           "properties": {
-            "cot_type": { "type": "byte" },
-            "amount": { "type": "float" }
+            "shipping": { "type": "float" }
           }
         },
         "site": { "type": "keyword" },
