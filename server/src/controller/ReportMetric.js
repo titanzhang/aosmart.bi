@@ -69,7 +69,8 @@ function createController(request) {
       orderCount: data.orderCount,
       saleCount: data.saleCount,
       saleAmount: data.saleAmount,
-      cogAmount: data.cogAmount
+      cogAmount: data.cogAmount,
+      cotAmount: data.cotAmount
     };
   }
 

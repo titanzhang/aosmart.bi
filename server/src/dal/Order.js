@@ -31,6 +31,9 @@ function buildQuery({docType, dateStart, dateEnd, accounts}) {
 
 function buildSaleAggregations() {
   return {
+    cot: {
+      sum: {field: 'cot.shipping'}
+    },
     sale_amount: {
       sum: {field: 'amount_paid'}
     },
@@ -123,7 +126,8 @@ const OrderDAO = {
           orderCount: data.doc_count,
           saleCount: data.product_info.sale_count.value,
           saleAmount: data.sale_amount.value,
-          cogAmount: data.product_info.cog.value
+          cogAmount: data.product_info.cog.value,
+          cotAmount: data.cot.value
         }
       });
 
@@ -155,7 +159,8 @@ const OrderDAO = {
         orderCount: response.hits.total,
         saleCount: response.aggregations.product_info.sale_count.value,
         saleAmount: response.aggregations.sale_amount.value,
-        cogAmount: response.aggregations.product_info.cog.value
+        cogAmount: response.aggregations.product_info.cog.value,
+        cotAmount: response.aggregations.cot.value
       };
 
     } catch(e) {

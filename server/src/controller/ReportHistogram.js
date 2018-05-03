@@ -66,7 +66,8 @@ function createController(request) {
         orderCount: info.orderCount,
         saleCount: info.saleCount,
         saleAmount: info.saleAmount,
-        cogAmount: info.cogAmount
+        cogAmount: info.cogAmount,
+        cotAmount: info.cotAmount
       };
     })
   }
