@@ -2,6 +2,8 @@ const OrderDAL = require('../entry/dal.Order');
 const OrderDAO = OrderDAL.DAO, OrderDO = OrderDAL.DO;
 const ProductDAL = require('../entry/dal.Product');
 const ProductDAO = ProductDAL.DAO, ProductDO = ProductDAL.DO;
+const ReportDAL = require('../entry/dal.Report');
+const ReportDAO = ReportDAL.DAO, ReportDO = ReportDAL.DO;
 
 module.exports = (request, response) => {
   const controller = createController(request);
@@ -75,11 +77,11 @@ function createController(request) {
       return 0;
     }
 
-    // Convert data to DO
+    // Convert data to OrderDO
     const orderDOList = [];
     for (const orderInfo of Object.values(data)) {
       const buyer = orderInfo[orderFields.buyer], products = orderInfo[orderFields.product];
-      let buyerDO, productDOs;
+      let buyerDO, productDOs = [];
       if (buyer) {
         buyerDO = OrderDO.buyer({
           name: buyer[orderFields.buyerName],
@@ -93,7 +95,6 @@ function createController(request) {
       }
 
       if (products && products.length > 0) {
-        productDOs = [];
         for (const product of products) {
           productDOs.push(OrderDO.product({
             sku: product[orderFields.sku],
@@ -119,21 +120,55 @@ function createController(request) {
       }));
     }
 
-    // Import to database
-    return await OrderDAO.insertBulk({list: orderDOList});
+    // Import order to database
+    const orderResp = await OrderDAO.insertBulk({list: orderDOList});
+    const failIDs = {};
+    for (const id of orderResp.fail) {
+      failIDs[id] = true;
+    }
+
+    // Convert data to ReportDO
+    const reportDOList = [];
+    for (const orderDO of orderDOList) {
+      if (failIDs[orderDO.order_no] === true) continue;
+
+      const reportOrderDO = ReportDO.order({
+        order_no: orderDO.order_no,
+        site: orderDO.site,
+        store: orderDO.store,
+        amount_paid: orderDO.amount_paid,
+        date: orderDO.date
+      });
+      for (const productDO of orderDO.products) {
+        const reportProductDO = ReportDO.product({
+          sku: productDO.sku,
+          quantity: productDO.quantity,
+          price: productDO.price,
+          cog: productDO.cog
+        });
+        reportDOList.push(ReportDO.report({
+          order: reportOrderDO,
+          product: reportProductDO
+        }));
+      }
+    }
+
+    const reportResp = await ReportDAO.bulkUpdate({list: reportDOList});
+
+    return {order: orderResp, report: reportResp};
   };
 
   return {
     run: async function() {
       const {site, store, orders} = parseParameter(request);
       const {cogs} = await getMetadata();
-      const result = await importData({data: orders, cogs: cogs, store: store, site: site});
+      const {order: orderResp, report: reportResp} = await importData({data: orders, cogs: cogs, store: store, site: site});
 
       return {
-        status: result.status,
+        status: orderResp.status,
         data: {
-          success: result.success.length,
-          fail: result.fail.length
+          success: Math.min(orderResp.success.length, reportResp.success.length),
+          fail: Math.max(orderResp.fail.length, reportResp.fail.length)
         }
       };
     },

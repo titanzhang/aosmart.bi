@@ -71,7 +71,7 @@ PUT order
   }
 }
 
-PUT etl
+PUT report
 {
   "settings": {
     "number_of_shards": 3,
@@ -82,9 +82,26 @@ PUT etl
     "doc": {
       "properties": {
         "type": { "type": "keyword" },
-        "data": { "type": "keyword", "index": false },
-        "date": { "type": "date" }
+        "product": {
+          "properties": {
+            "sku": { "type": "keyword" },
+            "quantity": { "type": "long" },
+            "price": { "type": "float" },
+            "cog": { "type": "float" }
+          }
+        },
+        "order": {
+          "properties": {
+            "order_no": { "type": "keyword" },
+            "site": { "type": "keyword" },
+            "store": { "type": "keyword" },
+            "amount_paid": { "type": "float" },
+            "cot_shipping": { "type": "float" },
+            "date": { "type": "date" }
+          }
+        }
       }
     }
   }
+
 }
