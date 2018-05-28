@@ -109,10 +109,20 @@ function createController(request) {
         }
       }
 
+      let cot;
+      if (site === 'ebay') { // eBayFVF and paypalFee hack
+        const revenue = orderInfo[orderFields.totalPrice];
+        cot = OrderDO.cot({
+          commission: revenue * 0.07628,
+          payment: 0.3 + revenue * 0.029
+        });
+      }
+
       orderDOList.push(OrderDO.order({
         order_no: orderInfo[orderFields.orderNo],
         buyer: buyerDO,
         amount_paid: orderInfo[orderFields.totalPrice],
+        cot: cot,
         site: site,
         store: store,
         products: productDOs,

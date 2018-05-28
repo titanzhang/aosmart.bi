@@ -32,7 +32,8 @@ function buildQuery({docType, dateStart, dateEnd, accounts}) {
 function buildSaleAggregations() {
   return {
     cot: {
-      sum: {field: 'cot.shipping'}
+      sum: {script: 'doc["cot.shipping"].value + doc["cot.commission"].value + doc["cot.payment"].value'}
+      // sum: {script: 'doc["cot.shipping"].value'}
     },
     sale_amount: {
       sum: {field: 'amount_paid'}
@@ -242,9 +243,11 @@ const OrderDO = {
     };
   },
 
-  cot: function({shipping}) {
+  cot: function({shipping, commission, payment}) {
     const dataObj = {};
     if (shipping !== undefined) dataObj.shipping = shipping;
+    if (commission !== undefined) dataObj.commission = commission;
+    if (payment !== undefined) dataObj.payment = payment;
 
     return dataObj;
   },

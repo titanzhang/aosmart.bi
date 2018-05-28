@@ -50,7 +50,9 @@ PUT order
         "amount_paid": { "type": "float" },
         "cot": {
           "properties": {
-            "shipping": { "type": "float" }
+            "shipping": { "type": "float" },
+            "commission": { "type": "float" },
+            "payment": { "type": "float"}
           }
         },
         "site": { "type": "keyword" },
