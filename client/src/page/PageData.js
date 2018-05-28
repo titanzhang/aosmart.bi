@@ -81,7 +81,8 @@ class PageData extends React.Component {
   }
 
   buildUploadForm({provider}) {
-    if (provider === providers.ebay || provider === providers.amazon) {
+    // if (provider === providers.ebay || provider === providers.amazon) {
+    if (provider === providers.ebay) {
       return (
         <OrderUpload
           key={provider}
