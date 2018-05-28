@@ -2,6 +2,7 @@ import React from 'react';
 import Dashboard from '../component/Dashboard';
 import backendConfig from '../config/backend';
 import Utils from '../common/Utils';
+import AccountMetadata from '../common/AccountMetadata';
 
 // account: site_store
 function buildApiUrl({baseUrl, dateStart, dateEnd, accounts}) {
@@ -152,11 +153,23 @@ class DashboardContainer extends React.Component {
   }
 
   render() {
+    const sites = [];
+    for (const site of AccountMetadata.getList()) {
+      const siteInfo = {name: site.name, stores: []};
+      for (const store of site.stores) {
+        if (store.country === undefined || store.country.length === 0) {
+          siteInfo.stores.push({name: store.name});
+        } else {
+          for (const country of store.country) {
+            siteInfo.stores.push({name: `${store.name}-${country}`});
+          }
+        }
+      }
+      sites.push(siteInfo);
+    }
+
     const filter = {
-      sites: [
-        { name: 'ebay', stores: [{name: 'aosmart'}, {name: 'aosmart1'}, {name: 'aosmart2'}] },
-        { name: 'amazon', stores: [{name: 'aosmart'}, {name: 'aosmart1'}, {name: 'aosmart2'}] },
-      ],
+      sites: sites,
       dateStart: this.filter.dateStart,
       dateEnd: this.filter.dateEnd,
       storeChangeHandler: this.filterStoreChange.bind(this),

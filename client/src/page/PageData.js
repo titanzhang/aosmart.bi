@@ -5,6 +5,7 @@ import CogUpload from '../component/CogUpload';
 import UspsUpload from '../component/UspsUpload';
 import DhlUpload from '../component/DhlUpload';
 import { providers,  apis as providerApi } from '../config/provider.js';
+import AccountMetadata from '../common/AccountMetadata';
 
 const Texts = {
   nav_ebay: 'eBay Order',
@@ -87,6 +88,7 @@ class PageData extends React.Component {
           title={uploadTitles[provider]}
           api={providerApi[provider]}
           provider={provider}
+          account={AccountMetadata.getList({provider:provider})[0]}
           callback={this.uploadCallback()}
         />
       );

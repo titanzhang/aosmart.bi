@@ -1,5 +1,6 @@
 import React from 'react';
 import DataParser from '../common/DataParser';
+import AccountSelector from './AccountSelector';
 // import CSV from 'csvtojson';
 require('./DataUpload.less');
 require('./button.less');
@@ -17,16 +18,18 @@ const Texts = {
 
 class DataUpload extends React.Component {
   constructor(props) {
+    const {api, provider, account, callback} = props;
     super(props);
     this.state = {
       isUploading: false
     };
-    this.api = props.api;
-    this.provider = props.provider;
+    this.api = api;
+    this.provider = provider;
     this.file = null;
     this.noHeader = false;
     this.account = '';
-    this.callback = props.callback;
+    this.accounts = account.stores;
+    this.callback = callback;
   }
 
   selectFileHandler(event) {
@@ -37,8 +40,8 @@ class DataUpload extends React.Component {
     this.noHeader = event.target.checked;
   }
 
-  accountHandler(event) {
-    this.account = event.target.value;
+  accountHandler(account) {
+    this.account = account;
   }
 
   readFile(file) {
@@ -140,7 +143,7 @@ class DataUpload extends React.Component {
         <div className='dataupload__row'>
           <label>
             {Texts.label_account + ' '}
-            <input name='account' type='text' onChange={ (e) => this.accountHandler(e) } />
+            <AccountSelector accountList={this.accounts} changeHandler={(account)=>this.accountHandler(account)} />
           </label>
         </div>
         <div className='dataupload__row'>

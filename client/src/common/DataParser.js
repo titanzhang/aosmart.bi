@@ -25,7 +25,8 @@ const orderFields = {
   buyerCountry: 'buyerCountry',
   paidDate: 'paidDate',
   orderID: 'orderID',
-  itemID: 'itemID'
+  itemID: 'itemID',
+  shipHandleFee: 'shFee'
 };
 
 const Parser = {
@@ -46,6 +47,7 @@ const dataMapping = [
   { name: orderFields.totalPrice, index: 20, parser: Parser.price }, // total amount of the order
   { name: orderFields.sku, index: 31 }, // Per item
   { name: orderFields.price, index: 16, parser: Parser.price }, // Per item
+  { name: orderFields.shipHandleFee, index: 17, parser: Parser.price},
   { name: orderFields.quantity, index: 15, parser: Parser.quantity }, // Per item
   { name: orderFields.buyerName, index: 2 },
   { name: orderFields.buyerStreet1, index: 5 },
