@@ -106,6 +106,7 @@ const DataParser = function() {
       orderFields.totalPrice,
       orderFields.paidDate
     ]);
+    info[orderFields.totalPrice] += row[orderFields.shipHandleFee];
     return info;
   }
 
